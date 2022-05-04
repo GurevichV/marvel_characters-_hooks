@@ -31,9 +31,9 @@ class CharList extends Component {
     render(){
         const {chars} = this.state
         const elements = chars.map(item => {
-            const {name, thumbnail} = item
+            const {name, thumbnail, id} = item
             return (
-                <li className="char__item">
+                <li key={id} className="char__item">
                     <img src={thumbnail} alt="abyss"/>
                     <div className="char__name">{name}</div>
                 </li>
