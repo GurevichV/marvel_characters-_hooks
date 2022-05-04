@@ -33,7 +33,7 @@ class CharList extends Component {
         const elements = chars.map(item => {
             const {name, thumbnail, id} = item
             return (
-                <li key={id} className="char__item">
+                <li key={id} className="char__item" onClick={() => this.props.onCharSelected(id)}>
                     <img src={thumbnail} alt="abyss"/>
                     <div className="char__name">{name}</div>
                 </li>
