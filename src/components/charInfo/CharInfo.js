@@ -4,6 +4,7 @@ import MarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import Skeleton from '../skeleton/Skeleton';
+import propTypes from 'prop-types';
 
 class CharInfo extends Component {
     state = {
@@ -14,7 +15,7 @@ class CharInfo extends Component {
     marvelService = new MarvelService();
 
     componentDidMount() {
-        this.updateChar()
+        this.updateChar();
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -44,6 +45,7 @@ class CharInfo extends Component {
             .getCharacters(charId)
             .then(this.onCharLoaded)
             .catch(this.onError)
+           
     }
 
     onCharLoaded = (char) => {
@@ -84,7 +86,7 @@ class CharInfo extends Component {
 const View = ({ char }) => {
     const { name, description, thumbnail, homepage, wiki, comics } = char
     const notImage = thumbnail.indexOf('image_not_available') > -1;
-    const comicsList = comics.length > 0 ? <Comics comics={comics} /> : "This character dosen't have comics";
+    const comicsList = comics.length > 0 ? <Comics comics={comics} /> : "This character dosn't have comics";
     console.log('comicsList', comicsList);
     console.log('comics', comics);
     return (
@@ -126,6 +128,11 @@ const Comics = ({ comics }) => {
             </ul>
         </>
     )
+}
+
+
+CharInfo.propTypes = {
+    charId: propTypes.number
 }
 
 export default CharInfo;
