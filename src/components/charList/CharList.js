@@ -1,16 +1,19 @@
 import './charList.scss';
 import Spinner from '../spinner/Spinner';
-import { Component } from 'react';
+import React, { Component } from 'react';
 import MarvelService from '../../services/MarvelService'
 import propTypes from 'prop-types';
 
 class CharList extends Component {
+    
+
+
 
     state = {
         chars: [],
         loading: true,
         newItemLoading: false,
-        offset: 1560,
+        offset: 210,
         charEnded: false
     }
 
@@ -44,18 +47,37 @@ class CharList extends Component {
         })
     }
 
+
     componentDidMount() {
         this.onRequest()
+    }
+
+    focusRef = [];
+    setRef = (ref) => {
+        this.focusRef.push(ref);
+    }
+    focusOnItem = (id) =>{
+        this.focusRef.forEach(item => item.classList.remove('char__item_selected'));
+        this.focusRef[id].classList.add('char__item_selected');
+        this.focusRef[id].focus();
     }
 
 
     render() {
         const { chars, loading, newItemLoading, offset, charEnded } = this.state;
         const spinner = loading ? <Spinner /> : null;
-        const elements = chars.map(item => {
+        const elements = chars.map((item,i) => {
             const { name, thumbnail, id } = item
             return (
-                <li key={id} className="char__item" onClick={() => this.props.onCharSelected(id)}>
+                <li 
+                tabIndex={0}
+                ref={this.setRef} key={id} className="char__item" onClick={() => this.props.onCharSelected(id)}
+                onKeyPress={(e) =>{
+                    if(e.key === '' || e.key === "Enter"){
+                        this.props.onCharSelected(id);
+                        this.focusOnItem(i);
+                    }
+                }}>
                     <img src={thumbnail} alt="abyss" />
                     <div className="char__name">{name}</div>
                 </li>
