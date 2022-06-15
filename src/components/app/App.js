@@ -1,44 +1,27 @@
-import { Component } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import AppHeader from "../appHeader/AppHeader";
-import RandomChar from "../randomChar/RandomChar";
-import CharList from "../charList/CharList";
-import CharInfo from "../charInfo/CharInfo";
-import decoration from '../../resources/img/vision.png';
-import ErrorBoundary from '../errorBoundary/ErrorBoundary';
+import { MainPage, ComicsPage, Page404 } from '../pages';
+import SinglePage from '../pages/SinglePage';
+import SingleComicLayout from '../pages/singleComicLayout/SingleComicLayout';
+import SingleCharacterLayout from '../pages/singleCharacterLayout/SingleCharacterLayout'
 
-
-
-class App extends Component {
-    state = {
-        selectedChar: null,
-
-    }
-
-    onCharSelected = (id) => {
-
-        this.setState({
-            selectedChar: id,
-        })
-    }
-
-    render(){
-        return (
-        <div className="app">
-            <AppHeader/>
-            <main>
-                <RandomChar/>
-                <div className="char__content">
-                    <CharList onCharSelected={this.onCharSelected}/>
-                    <ErrorBoundary>
-                        <CharInfo charId={this.state.selectedChar}/>
-                    </ErrorBoundary>
-                </div>
-                <img className="bg-decoration" src={decoration} alt="vision"/>
-            </main>
-        </div>
+const App = () => {
+    return (
+        <Router>
+            <div className="app">
+                <AppHeader />
+                <main>
+                    <Routes>
+                        <Route path='/' element={<MainPage />} />
+                        <Route path="/comics" element={<ComicsPage />} />
+                        <Route path="/comics/:id" element={<SinglePage Component={SingleComicLayout} dataType="comic" />} />
+                        <Route path="/characters/:id" element={<SinglePage component={SingleCharacterLayout} dataType="character" />} />
+                        <Route path='*' element={<Page404 />} />
+                    </Routes>
+                </main>
+            </div>
+        </Router>
     )
-    }
-    
 }
 
 

@@ -1,84 +1,48 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import './charInfo.scss';
-import MarvelService from '../../services/MarvelService';
+
+import useMarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import Skeleton from '../skeleton/Skeleton';
 import propTypes from 'prop-types';
 
-class CharInfo extends Component {
-    state = {
-        char: null,
-        loading: false,
-        error: false
-    }
-    marvelService = new MarvelService();
+const CharInfo = (props) => {
+    const [char, setChar] = useState(null);
+    const { loading, error, getCharacters } = useMarvelService();
 
-    componentDidMount() {
-        this.updateChar();
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        if (this.props.charId !== prevProps.charId) {
-            this.updateChar()
-        }
-    }
-
-    onCharLoading = () => {
-        this.setState({
-            loading: true
-        })
-    }
+    useEffect(() => {
+        updateChar();
+    }, [props.charId])
 
 
-    updateChar = () => {
-        const { charId } = this.props;
+    const updateChar = () => {
+        const { charId } = props;
         if (!charId) {
             return;
         }
 
-        this.onCharLoading();
-
-        this.marvelService
-            .getCharacters(charId)
-            .then(this.onCharLoaded)
-            .catch(this.onError)
-
+        getCharacters(charId)
+            .then(onCharLoaded)
     }
 
-    onCharLoaded = (char) => {
-        this.setState({
-            char,
-            loading: false,
-            error: false
-        })
+    const onCharLoaded = (char) => {
+        setChar(char);
     }
 
-    onError = () => {
-        this.setState({
-            loading: false,
-            error: true
-        })
-    }
-
-
-
-    render() {
-        const { char, loading, error } = this.state
-        const skeleton = char || loading || error ? null : <Skeleton />
-        const errorMessage = error ? <ErrorMessage /> : null;
-        const spinner = loading ? <Spinner /> : null;
-        const content = !(loading || error || !char) ? <View char={char} /> : null;
-        return (
-            <div className="char__info">
-                {skeleton}
-                {errorMessage}
-                {spinner}
-                {content}
-            </div>
-        )
-    }
-
+    const skeleton = char || loading || error ? null : <Skeleton />
+    const errorMessage = error ? <ErrorMessage /> : null;
+    const spinner = loading ? <Spinner /> : null;
+    const content = !(loading || error || !char) ? <View char={char} /> : null;
+    return (
+        <div className="char__info">
+            {skeleton}
+            {errorMessage}
+            {spinner}
+            {content}
+        </div>
+    )
 }
 
 const View = ({ char }) => {
@@ -117,8 +81,10 @@ const Comics = ({ comics }) => {
             <ul className="char__comics-list">
                 {
                     sliceComics.map((item, i) => {
+                        const { resourceURI } = item;
+                        const linkToComic = resourceURI.substring(resourceURI.indexOf("/comics/"));
                         return (<li key={i} className="char__comics-item">
-                            {item.name}
+                            <Link to={linkToComic}>{item.name}</Link>
                         </li>)
                     })}
             </ul>
