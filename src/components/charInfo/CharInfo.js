@@ -22,8 +22,6 @@ class CharInfo extends Component {
         if (this.props.charId !== prevProps.charId) {
             this.updateChar()
         }
-        console.log('prevProps', prevProps)
-        console.log('prevState', prevState)
     }
 
     onCharLoading = () => {
@@ -45,7 +43,7 @@ class CharInfo extends Component {
             .getCharacters(charId)
             .then(this.onCharLoaded)
             .catch(this.onError)
-           
+
     }
 
     onCharLoaded = (char) => {
@@ -87,8 +85,6 @@ const View = ({ char }) => {
     const { name, description, thumbnail, homepage, wiki, comics } = char
     const notImage = thumbnail.indexOf('image_not_available') > -1;
     const comicsList = comics.length > 0 ? <Comics comics={comics} /> : "This character dosn't have comics";
-    console.log('comicsList', comicsList);
-    console.log('comics', comics);
     return (
         <>
             <div className="char__basics">
