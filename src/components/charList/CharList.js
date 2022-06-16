@@ -1,9 +1,25 @@
 import './charList.scss';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import Spinner from '../spinner/Spinner';
-import { useState, useEffect, useRef } from 'react';
+import ErrorMessage from '../errorMessage/ErrorMessage';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import useMarvelService from '../../services/MarvelService'
 import PropTypes from 'prop-types';
+
+const setContent = (process, Component, newItemLoading) => {
+    switch (process) {
+        case 'waiting':
+            return <Spinner />
+        case 'loading':
+            return newItemLoading ? <Component /> : <Spinner />;
+        case 'confirmed':
+            return <Component />;
+        case 'error':
+            return <ErrorMessage />;
+        default:
+            throw new Error('Unexpected process state');
+    }
+}
 
 
 const CharList = (props) => {
@@ -13,7 +29,7 @@ const CharList = (props) => {
     const [offset, setOffset] = useState(210);
     const [charEnded, setCharEnded] = useState(false)
 
-    const { loading, getAllCharacters } = useMarvelService();
+    const { getAllCharacters, process, setProcesss } = useMarvelService();
 
     useEffect(() => {
         onRequest(offset, true);
@@ -23,6 +39,7 @@ const CharList = (props) => {
         initial ? setnewItemLoading(false) : setnewItemLoading(true);
         getAllCharacters(offset)
             .then(onCharLoaded)
+            .then(() => setProcesss('confirmed'))
     }
     const onCharLoaded = async (newChars) => {
 
@@ -45,7 +62,7 @@ const CharList = (props) => {
         focusRef.current[id].focus();
     }
 
-    const spinner = loading && !newItemLoading ? <Spinner /> : null;
+
     const elements = chars.map((item, i) => {
         const { name, thumbnail, id } = item
         return (
@@ -71,12 +88,17 @@ const CharList = (props) => {
 
         )
     })
+
+    const displayElements = useMemo(() => {
+        return setContent(process, () => elements, newItemLoading)
+    }, [process])
+
+
     return (
         <div className="char__list">
-            {spinner}
             <ul className="char__grid">
                 <TransitionGroup component={null}>
-                    {elements}
+                    {displayElements}
                 </TransitionGroup>
             </ul>
             <button className="button button__main button__long"

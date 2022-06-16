@@ -1,14 +1,29 @@
 import './comicsList.scss';
 import { Link } from 'react-router-dom';
 import Spinner from '../spinner/Spinner';
+import ErrorMessage from '../errorMessage/ErrorMessage';
 import React, { useState, useEffect } from 'react';
 import useMarvelService from '../../services/MarvelService';
 import propTypes from 'prop-types';
 
+const setContent = (process, Component, newItemLoading) => {
+    switch (process) {
+        case 'waiting':
+            return <Spinner />
+        case 'loading':
+            return newItemLoading ? <Component /> : <Spinner />;
+        case 'confirmed':
+            return <Component />;
+        case 'error':
+            return <ErrorMessage />;
+        default:
+            throw new Error('Unexpected process state');
+    }
+}
 
-const ComicsList = (props) => {
+const ComicsList = () => {
     const [comics, setComics] = useState([]);
-    const { loading, getAllComics } = useMarvelService();
+    const { getAllComics, process, setProcesss } = useMarvelService();
     const [newItemLoading, setnewItemLoading] = useState(false);
     const [offset, setOffset] = useState(0);
     const [comicsEnded, setComicsEnded] = useState(false)
@@ -21,6 +36,7 @@ const ComicsList = (props) => {
         initial ? setnewItemLoading(false) : setnewItemLoading(true);
         getAllComics(offset)
             .then(onCharLoaded)
+            .then(() => setProcesss('confirmed'))
     }
 
     const onCharLoaded = (newComics) => {
@@ -34,7 +50,6 @@ const ComicsList = (props) => {
         setComicsEnded(ended)
     }
 
-    const spinner = loading && !newItemLoading ? <Spinner /> : null;
     const elements = comics.map((item, i) => {
         const { title, thumbnail, id, price } = item
         return (
@@ -52,9 +67,8 @@ const ComicsList = (props) => {
 
     return (
         <div className="comics__list">
-            {spinner}
             <ul className="comics__grid">
-                {elements}
+                {setContent(process, () => elements, newItemLoading)}
             </ul>
             <button className="button button__main button__long"
                 disabled={newItemLoading}

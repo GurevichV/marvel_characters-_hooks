@@ -9,19 +9,20 @@ import ErrorMessage from '../errorMessage/ErrorMessage';
 const SearchForm = () => {
     const [charName, setCharName] = useState(null);
 
-    const { loading, error, getCharactersByName, clearError } = useMarvelService();
+    const { getCharactersByName, clearError, process, setProcess } = useMarvelService();
 
     const getInput = (data) => {
         clearError();
         getCharactersByName(data.name)
             .then(onCharLoaded)
+            .then(() => setProcess('confirmed'));
     }
 
     const onCharLoaded = (char) => {
         setCharName(char);
     }
 
-    const errorMessage = error ? <div className="char__search-critical-error"><ErrorMessage /></div> : null;
+    const errorMessage = process === 'error' ? <div className="char__search-critical-error"><ErrorMessage /></div> : null;
     const notFoundMessage = <div className="char__search-error">The character was not found. Check the name and try again.</div>
     const buttonToPage = !charName ? null : charName.length > 0 ? <div className="char__search-wrapper">
         <div className="char__search-success">There is! Visit {charName[0].name} page?</div>
@@ -48,7 +49,9 @@ const SearchForm = () => {
                             type="text"
                             placeholder="Enter name"
                         />
-                        <button className='button button__main' type="submit"><div className="inner" disabled={loading}>Find</div></button>
+                        <button
+                            className='button button__main'
+                            type="submit" disabled={process === 'loading'}><div className="inner">Find</div></button>
                     </div>
                     <FormikErrorMessage className="char__search-error" name="name" component="div" />
                     {buttonToPage}
